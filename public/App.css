@@ -1,0 +1,42 @@
+.mt-10 {
+    margin-top: 2%;
+}
+
+.square {
+    margin: 0 -1 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    float: left;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.square:hover {
+    background-color: rgba(107, 103, 103, 0);
+}
+
+.board {
+ 
+    left: 10%;
+    width: 80%;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.imglogo {
+    width: 15%;
+    margin-bottom: 20px;
+}
+
+.imgwin {
+    width: 100%;
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+}
