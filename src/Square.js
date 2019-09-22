@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 
 class Square extends Component {
-  setStyle(Background) {
-    //console.log(Background);
+  setStyle(Background,BackgroundColor) {
     return {
-      backgroundImage: `url(${Background})`
+      backgroundImage: `url(${Background})`,
+      backgroundColor: `${BackgroundColor}`
     };
   }
   render() {
@@ -13,7 +13,7 @@ class Square extends Component {
         <button
           className="square"
           onClick={() => this.props.onClick()}
-          style={this.setStyle(this.props.value)}
+          style={this.setStyle(this.props.value,this.props.lineWin)}
         ></button>
       </div>
     );

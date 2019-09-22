@@ -6,12 +6,14 @@ class Undo extends Component {
   };
   render() {
     return (
-      <button
-        className=" btn btn-primary m-2 fa fa-undo"
-        onClick={() => this.undo()}
-      >
-        Undo
-      </button>
+      <div className="col-3 col-sm-3">
+        <button
+          className=" btn btn-primary fa fa-undo"
+          onClick={() => this.undo()}
+        >
+          Undo
+        </button>
+      </div>
     );
   }
 }

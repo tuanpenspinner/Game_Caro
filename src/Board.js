@@ -3,6 +3,7 @@ import Square from "./Square";
 import NewGame from "./NewGame";
 import Undo from "./Undo";
 import InforWin from "./InforWin";
+import Mode from "./Mode";
 
 export class Board extends Component {
   constructor(props) {
@@ -12,35 +13,42 @@ export class Board extends Component {
       size: 20,
       value: ["./X.png", "./O.png"],
       squares: [[null, null]],
-      win: false
+      win: false,
+      lineWin: [[null, null]],
+      modeTwohead: false
     };
   }
 
   handleClick = (i, j) => {
-    var squares = this.state.squares;
-    if (this.state.turn && this.state.squares[[i, j]] == null) {
-      squares[[i, j]] = this.state.value[0];
-      this.setState({
-        squares: squares,
-        turn: !this.state.turn
-      });
-      this.setHistory(this.state.squares);
-    } else if (this.state.squares[[i, j]] == null) {
-      squares[[i, j]] = this.state.value[1];
-      this.setState({
-        squares: squares,
-        turn: !this.state.turn
-      });
-      this.setHistory(this.state.squares);
-    }
-    this.isEndGame(i, j)
-      ? this.setState({
-          win: true
-        })
-      : this.setState({
-          win: this.state.win
+    if (!this.state.win) {
+      var squares = this.state.squares;
+      if (this.state.turn && this.state.squares[[i, j]] == null) {
+        squares[[i, j]] = this.state.value[0];
+
+        this.setState({
+          squares: squares,
+          turn: !this.state.turn
         });
+        this.setHistory(this.state.squares);
+      } else if (this.state.squares[[i, j]] == null) {
+        squares[[i, j]] = this.state.value[1];
+        this.setState({
+          squares: squares,
+          turn: !this.state.turn
+        });
+        this.setHistory(this.state.squares);
+      }
+
+      this.isEndGame(i, j)
+        ? this.setState({
+            win: true
+          })
+        : this.setState({
+            win: this.state.win
+          });
+    }
   };
+
   setHistory = squares => {
     return this.props.setHistory(squares);
   };
@@ -49,6 +57,7 @@ export class Board extends Component {
     return (
       <Square
         key={[i, j]}
+        lineWin={this.state.lineWin[[i, j]]}
         value={this.state.squares[[i, j]]}
         onClick={() => this.handleClick(i, j)}
       />
@@ -63,7 +72,7 @@ export class Board extends Component {
     return <div>{row}</div>;
   };
 
-  renderBoard(){
+  renderBoard() {
     var board = [];
     for (var j = 0; j < this.state.size; j++) {
       board.push(
@@ -72,19 +81,12 @@ export class Board extends Component {
         </div>
       );
     }
-
-   var InforWin = (this.state.win)?this.InforWin():"";
-    return (
-      <div className="board">
-      {InforWin}
-        {board}
-      </div>
-    );
+    return <div className="board row">{board}</div>;
   }
 
-  InforWin(){
-    var src=(!this.state.turn)?'./X.png':'./O.png'
-    return <InforWin src={src}/>
+  InforWin() {
+    var src = !this.state.turn ? "./X.png" : "./O.png";
+    return <InforWin src={src} />;
   }
 
   newgame = () => {
@@ -105,6 +107,7 @@ export class Board extends Component {
     var countLeft, countRight;
     countLeft = 0;
     countRight = 0;
+
     for (let index = i; index >= 0; index--) {
       if (this.state.squares[[index, j]] === this.state.squares[[i, j]]) {
         countLeft++;
@@ -112,7 +115,9 @@ export class Board extends Component {
         break;
       }
     }
+
     if (countLeft === 0) countRight++;
+
     for (let index = i + 1; index <= this.state.size; index++) {
       if (this.state.squares[[index, j]] === this.state.squares[[i, j]]) {
         countRight++;
@@ -120,8 +125,9 @@ export class Board extends Component {
         break;
       }
     }
-    return countLeft + countRight === 5;
+    return countLeft + countRight >= 5;
   };
+
   isEndGameVertical = (i, j) => {
     var countTop, countBotton;
     countTop = 0;
@@ -142,8 +148,9 @@ export class Board extends Component {
       }
     }
 
-    return countTop + countBotton === 5;
+    return countTop + countBotton >= 5;
   };
+
   isEndGameCheoChinh = (i, j) => {
     var countTop, countBotton;
     countTop = 0;
@@ -169,13 +176,14 @@ export class Board extends Component {
         break;
       }
     }
-    return countTop + countBotton === 5;
+    return countTop + countBotton >= 5;
   };
+
   isEndGameCheoPhu = (i, j) => {
     var countTop, countBotton;
     countTop = 0;
     countBotton = 0;
-    for (var index = 0; index <=this.state.size; index++) {
+    for (var index = 0; index <= this.state.size; index++) {
       if (
         this.state.squares[[i + index, j - index]] ===
         this.state.squares[[i, j]]
@@ -196,8 +204,9 @@ export class Board extends Component {
         break;
       }
     }
-    return countTop + countBotton === 5;
+    return countTop + countBotton >= 5;
   };
+
   isEndGame = (i, j) => {
     return (
       this.isEndGameHorizontal(i, j) ||
@@ -213,12 +222,19 @@ export class Board extends Component {
 
   render() {
     var turn = this.state.turn ? "X" : "O";
-    var winner = this.state.turn ? "O" : "X";
+    var InforWin = this.state.win ? this.InforWin() : "";
     return (
       <div>
-        <NewGame newgame={() => this.newgame()} />
-        <Undo undo={this.undo} />
-        Đến lượt:{turn}
+        <div className="row menu">
+          <div className="col-8 row ">
+            <NewGame newgame={() => this.newgame()} />
+            <Undo undo={this.undo} />
+            Chặn hai đầu:
+            <Mode />
+            <div className="col-2 col-sm-2">Đến lượt:{turn}</div>
+          </div>
+          {InforWin}
+        </div>
         <br />
         {this.renderBoard()}
       </div>
