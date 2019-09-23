@@ -1,31 +1,33 @@
-import React, { Component } from "react";
+import React from "react";
 import Board from "./Board";
 
-export class Game extends Component {
+export class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       history: [],
-      index:0
+      index: 0
     };
   }
   setHistory = squares => {
     //console.log(squares);
     var history = this.state.history;
-  
-    //console.log(squares)
+
+    //console.log(squares);
+    history.push(squares);
     this.setState({
       history: history,
-      index:this.state.index+1
+      index: this.state.index + 1
     });
-    //var h=this.state.history
-    //console.log(h);
-    //console.log(squares);
+    //console.log(this.state.history);
   };
   render() {
     return (
       <div className="container mt-10">
-        <Board getHistory={this.state.history} setHistory={this.setHistory} />
+        <Board
+          getHistory={this.state.history}
+          setHistory={this.setHistory}
+        />
       </div>
     );
   }

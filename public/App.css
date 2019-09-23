@@ -13,16 +13,11 @@
     background-size: cover;
 }
 
-.square:hover {
-    background-color: rgba(107, 103, 103, 0);
-}
-
 .board {
-    
-    left: 20%;
+
+    left: 1%;
     width: 80%;
     position: relative;
-    
 }
 
 .imglogo {
@@ -35,6 +30,6 @@
 
 }
 
-.menu{
-    height:100px;
+.menu {
+    height: 100px;
 }

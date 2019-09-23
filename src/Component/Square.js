@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 
-class Square extends Component {
-  setStyle(Background,BackgroundColor) {
+class Square extends React.Component {
+  setStyle(Background, BackgroundColor) {
+    console.log(BackgroundColor+" df");
     return {
-      backgroundImage: `url(${Background})`,
-      backgroundColor: `${BackgroundColor}`
+      backgroundColor: `${BackgroundColor}`,
+      backgroundImage: `url(${Background})`
     };
   }
   render() {
