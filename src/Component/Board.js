@@ -23,12 +23,12 @@ class Board extends React.Component {
 
   handleClick = (i, j) => {
     const { win, squares, history, turn, value } = this.state;
-    const valueX = value[0];
     const valueO = value[0];
+    const valueY = value[1];
     if (!win) {
       if (squares[[i, j]] == null) {
-        if (turn) squares[[i, j]] = valueX;
-        else squares[[i, j]] = valueO;
+        if (turn) squares[[i, j]] = valueO;
+        else squares[[i, j]] = valueY;
         this.setState({
           squares,
           turn: !turn,
@@ -36,14 +36,10 @@ class Board extends React.Component {
         });
       }
 
-      if (this.isEndGame())
+      if (this.isEndGame(i, j))
         this.setState({
           win: !win
-        });
-      else
-        this.setState({
-          win
-        });
+        }); 
     }
   };
 
@@ -355,7 +351,7 @@ class Board extends React.Component {
       });
     } else {
       this.setState({
-        lineWin: lineWin
+        lineWin
       });
     }
 
@@ -385,6 +381,7 @@ class Board extends React.Component {
       lineWin: [[]],
       history: []
     });
+  
   };
 
   undo = () => {
