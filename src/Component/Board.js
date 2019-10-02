@@ -6,77 +6,72 @@ import Undo from "./Undo";
 import InforWin from "./InforWin";
 import Mode from "./Mode";
 
-export class Board extends React.Component {
+class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       turn: true,
       size: 20,
       value: ["./image/X.png", "./image/O.png"],
-      squares: [[null, null]],
+      squares: [[]],
       win: false,
-      lineWin: [[null, null]],
-      modeTwohead: false
+      lineWin: [[]],
+      modeTwohead: false,
+      history: []
     };
   }
 
   handleClick = (i, j) => {
-    if (!this.state.win) {
-      var squares = this.state.squares;
-      if (this.state.turn && this.state.squares[[i, j]] == null) {
-        squares[[i, j]] = this.state.value[0];
-
+    const { win, squares, history, turn, value } = this.state;
+    const valueX = value[0];
+    const valueO = value[0];
+    if (!win) {
+      if (squares[[i, j]] == null) {
+        if (turn) squares[[i, j]] = valueX;
+        else squares[[i, j]] = valueO;
         this.setState({
-          squares: squares,
-          turn: !this.state.turn
+          squares,
+          turn: !turn,
+          history: [...history, { i, j, value: squares[[i, j]] }]
         });
-
-        this.setHistory(this.state.squares);
-      } else if (this.state.squares[[i, j]] == null) {
-        squares[[i, j]] = this.state.value[1];
-        this.setState({
-          squares: squares,
-          turn: !this.state.turn
-        });
-        this.setHistory(this.state.squares);
       }
 
-      this.isEndGame(i, j)
-        ? this.setState({
-            win: true
-          })
-        : this.setState({
-            win: this.state.win
-          });
+      if (this.isEndGame())
+        this.setState({
+          win: !win
+        });
+      else
+        this.setState({
+          win
+        });
     }
   };
 
-  setHistory = squares => {
-    return this.props.setHistory(squares);
-  };
-
   renderSquare = (i, j) => {
+    const { lineWin, squares } = this.state;
     return (
       <Square
         key={[i, j]}
-        lineWin={this.state.lineWin[[i, j]]}
-        value={this.state.squares[[i, j]]}
+        lineWin={lineWin[[i, j]]}
+        value={squares[[i, j]]}
         onClick={() => this.handleClick(i, j)}
       />
     );
   };
 
   renderRowSquare = j => {
-    var row = [];
-    for (var i = 0; i < this.state.size; i++) {
+    const row = [];
+    const { size } = this.state;
+    for (let i = 0; i < size; i += 1) {
       row.push(this.renderSquare(i, j));
     }
     return <div>{row}</div>;
   };
 
-  renderBoard() {
-    var board = [];
-    for (var j = 0; j < this.state.size; j++) {
+  renderBoard = () => {
+    const board = [];
+    const { size } = this.state;
+    for (let j = 0; j < size; j += 1) {
       board.push(
         <div className="row" key={j}>
           <div className="col-12">{this.renderRowSquare(j)}</div>
@@ -84,152 +79,134 @@ export class Board extends React.Component {
       );
     }
     return <div className="board row">{board}</div>;
-  }
-
-  InforWin() {
-    var src = !this.state.turn ? this.state.value[0] : this.state.value[1];
-    return <InforWin src={src} />;
-  }
-
-  newgame = () => {
-    this.setState({
-      squares: [[null, null]],
-      turn: true,
-      win: false,
-      lineWin: [[null, null]]
-    });
-  };
-
-  undo = () => {
-    
   };
 
   isEndGameHorizontal = (i, j) => {
-    var countLeft, countRight;
+    let countLeft;
+    let countRight;
     countLeft = 0;
     countRight = 0;
-    var lineWin = this.state.lineWin;
-    var mode = 0;
-    var squareClick = this.state.squares[[i, j]];
+    const { lineWin, squares, value, size, modeTwohead } = this.state;
+    let mode = 0;
+    const squareClick = squares[[i, j]];
 
-    for (let index = i; index >= 0; index--) {
-      if (this.state.squares[[index, j]] === squareClick) {
+    for (let index = i; index >= 0; index -= 1) {
+      if (squares[[index, j]] === squareClick) {
         lineWin[[index, j]] = "black";
-        countLeft++;
-        if (index === 0) mode = mode + 1;
+        countLeft += 1;
+        if (index === 0) mode += 1;
       } else {
         if (index > 0) {
-          var head = this.state.squares[[index, j]];
+          const head = squares[[index, j]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
-        } else mode = mode + 1;
+        } else mode += 1;
         break;
       }
     }
 
-    if (countLeft === 0) countRight++;
+    if (countLeft === 0) countRight += 1;
 
-    for (let index = i + 1; index < this.state.size; index++) {
-      if (this.state.squares[[index, j]] === squareClick) {
-        countRight++;
+    for (let index = i + 1; index < size; index += 1) {
+      if (squares[[index, j]] === squareClick) {
+        countRight += 1;
         lineWin[[index, j]] = "black";
-        if (index === this.state.size - 1) mode = mode + 1;
+        if (index === size - 1) mode += 1;
       } else {
-        if (index < this.state.size) {
-          head = this.state.squares[[index, j]];
+        if (index < size) {
+          const head = squares[[index, j]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
         }
         break;
       }
     }
-    if (!this.state.modeTwohead) {
+    if (!modeTwohead) {
       if (countLeft + countRight < 5) {
         this.setState({
           lineWin: [[null, null]]
         });
       } else {
         this.setState({
-          lineWin: lineWin
+          lineWin
         });
       }
       return countLeft + countRight >= 5;
     }
-
     if (countLeft + countRight < 5 || mode === 2) {
       this.setState({
         lineWin: [[null, null]]
       });
     } else {
       this.setState({
-        lineWin: lineWin
+        lineWin
       });
     }
     return countLeft + countRight >= 5 && mode !== 2;
   };
 
   isEndGameVertical = (i, j) => {
-    var countTop, countBotton;
+    let countTop;
+    let countBotton;
     countTop = 0;
     countBotton = 0;
-    var lineWin = this.state.lineWin;
-    var mode = 0;
-    var squareClick = this.state.squares[[i, j]];
+    const { lineWin, squares, value, size, modeTwohead } = this.state;
+    let mode = 0;
+    const squareClick = squares[[i, j]];
 
-    for (let index = j; index >= 0; index--) {
-      if (this.state.squares[[i, index]] === this.state.squares[[i, j]]) {
-        countTop++;
+    for (let index = j; index >= 0; index -= 1) {
+      if (squares[[i, index]] === squares[[i, j]]) {
+        countTop += 1;
         lineWin[[i, index]] = "black";
-        if (index === 0) mode = mode + 1;
+        if (index === 0) mode += 1;
       } else {
         if (index > 0) {
-          var head = this.state.squares[[i, index]];
-          //console.log(head);
+          const head = squares[[i, index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
-        } else mode = mode + 1;
+        } else mode += 1;
         break;
       }
     }
-    if (countTop === 0) countBotton++;
-    for (let index = j + 1; index <= this.state.size; index++) {
-      if (this.state.squares[[i, index]] === this.state.squares[[i, j]]) {
-        countBotton++;
+    if (countTop === 0) countBotton += 1;
+    for (let index = j + 1; index <= size; index += 1) {
+      if (squares[[i, index]] === squares[[i, j]]) {
+        countBotton += 1;
         lineWin[[i, index]] = "black";
-        if (index === this.state.size - 1) mode = mode + 1;
+        if (index === size - 1) mode += 1;
       } else {
-        if (index < this.state.size) {
-          head = this.state.squares[[i, index]];
+        if (index < size) {
+          const head = squares[[i, index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
         }
         break;
       }
     }
-    if (!this.state.modeTwohead) {
+    if (!modeTwohead) {
       if (countTop + countBotton < 5) {
         this.setState({
           lineWin: [[null, null]]
         });
       } else {
         this.setState({
-          lineWin: lineWin
+          lineWin
         });
       }
       return countTop + countBotton >= 5;
@@ -240,70 +217,65 @@ export class Board extends React.Component {
       });
     } else {
       this.setState({
-        lineWin: lineWin
+        lineWin
       });
     }
     return countTop + countBotton >= 5 && mode !== 2;
   };
 
   isEndGameCheoChinh = (i, j) => {
-    var countTop, countBotton;
+    let countTop;
+    let countBotton;
     countTop = 0;
     countBotton = 0;
-    var lineWin = this.state.lineWin;
-    var mode = 0;
-    var squareClick = this.state.squares[[i, j]];
-    for (var index = 0; index <= i; index++) {
-      if (
-        this.state.squares[[i - index, j - index]] ===
-        this.state.squares[[i, j]]
-      ) {
-        countTop++;
-        if (i - index === 0) mode = mode + 1;
+    const { lineWin, squares, value, size, modeTwohead } = this.state;
+    let mode = 0;
+    const squareClick = squares[[i, j]];
+    for (let index = 0; index <= i; index += 1) {
+      if (squares[[i - index, j - index]] === squares[[i, j]]) {
+        countTop += 1;
+        if (i - index === 0) mode += 1;
         lineWin[[i - index, j - index]] = "black";
       } else {
         if (index > 0) {
-          var head = this.state.squares[[i - index, j - index]];
+          const head = squares[[i - index, j - index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
-        } else mode = mode + 1;
+        } else mode += 1;
         break;
       }
     }
-    if (countTop === 0) countBotton++;
-    for (let index = 1; index < this.state.size; index++) {
-      if (
-        this.state.squares[[i + index, j + index]] ===
-        this.state.squares[[i, j]]
-      ) {
-        countBotton++;
+    if (countTop === 0) countBotton += 1;
+    for (let index = 1; index < size; index += 1) {
+      if (squares[[i + index, j + index]] === squares[[i, j]]) {
+        countBotton += 1;
         lineWin[[i + index, j + index]] = "black";
-        if (j + index === this.state.size - 1) mode = mode + 1;
+        if (j + index === size - 1) mode += 1;
       } else {
-        if (index < this.state.size) {
-          head = this.state.squares[[i + index, j + index]];
+        if (index < size) {
+          const head = squares[[i + index, j + index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
         }
         break;
       }
     }
-    if (!this.state.modeTwohead) {
+    if (!modeTwohead) {
       if (countTop + countBotton < 5) {
         this.setState({
           lineWin: [[null, null]]
         });
       } else {
         this.setState({
-          lineWin: lineWin
+          lineWin
         });
       }
       return countTop + countBotton >= 5;
@@ -314,70 +286,65 @@ export class Board extends React.Component {
       });
     } else {
       this.setState({
-        lineWin: lineWin
+        lineWin
       });
     }
     return countTop + countBotton >= 5 && mode !== 2;
   };
 
   isEndGameCheoPhu = (i, j) => {
-    var countTop, countBotton;
+    let countTop;
+    let countBotton;
     countTop = 0;
     countBotton = 0;
-    var lineWin = this.state.lineWin;
-    var mode = 0;
-    var squareClick = this.state.squares[[i, j]];
-    for (var index = 0; index <= i; index++) {
-      if (
-        this.state.squares[[i + index, j - index]] ===
-        this.state.squares[[i, j]]
-      ) {
-        countTop++;
-        if (i - index === 0) mode = mode + 1;
+    const { lineWin, squares, value, size, modeTwohead } = this.state;
+    let mode = 0;
+    const squareClick = squares[[i, j]];
+    for (let index = 0; index <= i; index += 1) {
+      if (squares[[i + index, j - index]] === squares[[i, j]]) {
+        countTop += 1;
+        if (i - index === 0) mode += 1;
         lineWin[[i + index, j - index]] = "black";
       } else {
         if (index > 0) {
-          var head = this.state.squares[[i + index, j - index]];
+          const head = squares[[i + index, j - index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
-        } else mode = mode + 1;
+        } else mode += 1;
         break;
       }
     }
-    if (countTop === 0) countBotton++;
-    for (let index = 1; index < this.state.size; index++) {
-      if (
-        this.state.squares[[i - index, j + index]] ===
-        this.state.squares[[i, j]]
-      ) {
-        countBotton++;
+    if (countTop === 0) countBotton += 1;
+    for (let index = 1; index < size; index += 1) {
+      if (squares[[i - index, j + index]] === squares[[i, j]]) {
+        countBotton += 1;
         lineWin[[i - index, j + index]] = "black";
-        if (j + index === this.state.size - 1) mode = mode + 1;
+        if (j + index === size - 1) mode += 1;
       } else {
-        if (index < this.state.size) {
-          head = this.state.squares[[i - index, j + index]];
+        if (index < size) {
+          const head = squares[[i - index, j + index]];
           if (
-            (head === this.state.value[0] || head === this.state.value[1]) &&
+            (head === value[0] || head === value[1]) &&
             head !== squareClick
           ) {
-            mode = mode + 1;
+            mode += 1;
           }
         }
         break;
       }
     }
-    if (!this.state.modeTwohead) {
+    if (!modeTwohead) {
       if (countTop + countBotton < 5) {
         this.setState({
           lineWin: [[null, null]]
         });
       } else {
         this.setState({
-          lineWin: lineWin
+          lineWin
         });
       }
       return countTop + countBotton >= 5;
@@ -404,30 +371,61 @@ export class Board extends React.Component {
     );
   };
 
-  win(winner) {
-    return this.state.win ? winner + " win!" : "";
-  }
+  InforWin = () => {
+    const { turn, value } = this.state;
+    const src = !turn ? value[0] : value[1];
+    return <InforWin src={src} />;
+  };
 
-  setMode = (modeTwohead)=> {
+  newgame = () => {
     this.setState({
-      modeTwohead: modeTwohead
+      squares: [[]],
+      turn: true,
+      win: false,
+      lineWin: [[]],
+      history: []
+    });
+  };
+
+  undo = () => {
+    const { history, win, turn } = this.state;
+    if (!win && history) {
+      history.pop();
+      const undo = [[]];
+      history.map(his => {
+        undo[[his.i, his.j]] = his.value;
+        return null;
+      });
+      this.setState({
+        squares: undo,
+        turn: !turn,
+        history
+      });
+    }
+  };
+
+  setMode = modeTwohead => {
+    this.setState({
+      modeTwohead
     });
   };
 
   render() {
-    var turn = this.state.turn ? "X" : "O";
-    var InforWin = this.state.win ? this.InforWin() : "";
+    const { win } = this.state;
+    let { turn } = this.state;
+    turn = turn ? "X" : "O";
+    const inforWin = win ? this.InforWin() : "";
     return (
       <div>
         <div className="row menu">
           <div className="col-6 row ">
-            <NewGame newgame={() => this.newgame()} />
+            <NewGame newgame={this.newgame} />
             <Undo undo={this.undo} />
             Chặn hai đầu:
             <Mode mode={this.setMode} />
-            <div className="col-3 col-sm-3">Đến lượt:{turn}</div>
+            <div className="col-3 col-sm-3"> Đến lượt:{turn}</div>
           </div>
-          {InforWin}
+          {inforWin}
         </div>
         <br />
         {this.renderBoard()}

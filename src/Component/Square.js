@@ -1,21 +1,23 @@
 import React from "react";
 
 class Square extends React.Component {
-  setStyle(Background, BackgroundColor) {
-    console.log(BackgroundColor+" df");
+  setStyle = (Background, BackgroundColor) => {
     return {
       backgroundColor: `${BackgroundColor}`,
       backgroundImage: `url(${Background})`
     };
-  }
+  };
+
   render() {
+    const { value, onClick, lineWin } = this.props;
     return (
       <div>
         <button
+          type="button"
           className="square"
-          onClick={() => this.props.onClick()}
-          style={this.setStyle(this.props.value,this.props.lineWin)}
-        ></button>
+          onClick={onClick}
+          style={this.setStyle(value, lineWin)}
+        />
       </div>
     );
   }
