@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Game_Caro/static/css/main.34de6062.chunk.css",
+    "main.js": "/Game_Caro/static/js/main.213bd30a.chunk.js",
+    "main.js.map": "/Game_Caro/static/js/main.213bd30a.chunk.js.map",
+    "runtime~main.js": "/Game_Caro/static/js/runtime~main.ec8746d1.js",
+    "runtime~main.js.map": "/Game_Caro/static/js/runtime~main.ec8746d1.js.map",
+    "static/js/2.527329ef.chunk.js": "/Game_Caro/static/js/2.527329ef.chunk.js",
+    "static/js/2.527329ef.chunk.js.map": "/Game_Caro/static/js/2.527329ef.chunk.js.map",
+    "index.html": "/Game_Caro/index.html",
+    "precache-manifest.df28151d4c1e372d878d038e79bd425b.js": "/Game_Caro/precache-manifest.df28151d4c1e372d878d038e79bd425b.js",
+    "service-worker.js": "/Game_Caro/service-worker.js",
+    "static/css/main.34de6062.chunk.css.map": "/Game_Caro/static/css/main.34de6062.chunk.css.map"
+  }
+}
