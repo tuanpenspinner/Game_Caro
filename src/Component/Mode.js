@@ -1,15 +1,16 @@
 import React from "react";
+import {connect} from "react-redux"
+import * as actions from "../Action/actions"
 
 class Mode extends React.Component {
   changeMode = () => {
-    const { mode } = this.props;
     const { check } =this.refs;
-
-    return mode(check.checked);
+    const{changeMode}=this.props
+    return changeMode(check.checked);
   };
-
+ 
   render() {
-    const check = "check";
+    const check="check"
     return (
       <div className="col-3 col-sm-3">
         <input
@@ -23,4 +24,16 @@ class Mode extends React.Component {
   }
 }
 
-export default Mode;
+const mapStatetoProsps=(state)=>{
+  return{
+    state
+  }
+}
+const mapDispatchtoProps=(dispatch)=>{
+  return{
+    changeMode:(modeTwohead)=>{
+      dispatch(actions.changeMode(modeTwohead))
+    }
+  }
+}
+export default connect(mapStatetoProsps,mapDispatchtoProps)(Mode);

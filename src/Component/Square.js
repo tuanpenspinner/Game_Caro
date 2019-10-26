@@ -1,4 +1,6 @@
 import React from "react";
+import { connect } from "react-redux";
+import * as actions from "../Action/actions";
 
 class Square extends React.Component {
   setStyle = (Background, BackgroundColor) => {
@@ -8,19 +10,41 @@ class Square extends React.Component {
     };
   };
 
+  onClick=()=>{
+    const {i,j,onClick}=this.props;
+    return onClick(i,j)
+  }
+
   render() {
-    const { value, onClick, lineWin } = this.props;
+    const {state,i,j}=this.props
+    const Background=state.squares[[i,j]];
+    const BackgroundColor= state.lineWin[[i,j]]
     return (
-      <div>
-        <button
-          type="button"
-          className="square"
-          onClick={onClick}
-          style={this.setStyle(value, lineWin)}
-        />
-      </div>
+      <button
+        type="button"
+        className="square"
+        onClick={this.onClick}
+        style={this.setStyle(Background,BackgroundColor)}
+      >
+      .
+      </button>
     );
   }
 }
 
-export default Square;
+const mapStatetoProps = state => {
+  return {
+    state
+  };
+};
+const mapDispatchtoProps = dispatch => {
+  return {
+    onClick:(i, j)=>{
+      dispatch(actions.onClick(i, j));
+    }
+  };
+};
+export default connect(
+  mapStatetoProps,
+  mapDispatchtoProps
+)(Square);
